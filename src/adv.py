@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+from item import Item
 # Declare all the rooms
 
 room = {
@@ -36,11 +37,20 @@ room['treasure'].s_to = room['narrow']
 #
 # Main
 #
+items = {
+    "saber": Item("Saber", "This is your weapon."),
+    "torch": Item("Torch", "This is your light."),
+    "gold": Item("Gold", "Eureka!")
+}
 
+room['outside'].items.append(items["torch"])
+room['overlook'].items.append(items["saber"])
+room['narrow'].items.append(items["gold"])
 # Make a new player object that is currently in the 'outside' room.
-player = Player(input("State your name:"), room['outside'])
-print(f'Good Luck, {player.name}')
-print(player.current_room.description)
+new_player = Player(player_name = "Jonathan", current_room = room["outside"])
+print("\nWelcome! Please enter a direction to travel n, s, e, w, and q to quit the game.\n\nYou may get, take, pickup items, or drop them.\n\n")
+# print(f"{new_player.player.name} is in {new_player.current_room} \n")
+print(new_player.current_room.list_items())
 # Write a loop that:
 #
 # * Prints the current room name
@@ -51,23 +61,46 @@ print(player.current_room.description)
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
-game = 1
+while True:
+    selection = input("Enter a direction, command or Q to escape: ")
+    user_selection = selection.lower().split(" ")
+    if len(user_selection) == 1: 
+        if selection == "q": 
+            print("GOODBYE!!!")
+            break
+        elif selection == "n" or selection == "s" or selection == "e" or selection == "w":
+            new_player.move(selection)
+            print(f"\n{new_player.player_name} is in {new_player.current_room.room_name} \n{new_player.current_room.description}\n\n {new_player.current_room.list_items()}")
+        elif selection == "i":
+            new_player.print_items()
+        else:
+            print("Try Again!")
+    elif len(user_selection) == 2: 
+        if user_selection[0] in ["take", "get", "pickup"]:
+            if items[user_selection[1]]:
+                new_player.pickup_item(items[user_selection[1]])
+                
+                print("\n\nYou have added a new item to inventory!\n")
+                print(f"{new_player.player_name} is {new_player.current_room} \n")
+                print(new_player.current_room.list_items())
+            else:
+                print("That isn't an item.")
+        elif user_selection[0] == "drop": 
+            if items[user_selection[1]]:
+                new_player.drop_item(items[user_selection[1]])
+                print("You dropped an item!")
+                print(new_player.print_items())
+                print(f"{new_player.player_name} is {new_player.current_room} \n")
+                print(new_player.current_room.list_items())
+            else: 
+                print("That isn't an item.")
+        else: 
+            print("Try Again!")
+    else: 
+        print("Try Again!")
 
-while game:
-    command = input('Where would you like to move? n, e, s, w, or q(quit)')
-    if command == 'north':
-       player.move(command)
+# If the user enters a cardinal direction, attempt to move to the room there.
 
-    elif command == 'south':
-        player.move(command)
-
-    elif command == 'east':
-        player.move(command)
-
-    elif command == 'west':
-        player.move(command)
-
-    elif command == 'q':
-        game = False
-    else:
-        print("NO WAY!")  
+# Print an error message if the movement isn't allowed.
+#
+# If the user enters "q", quit the game.
